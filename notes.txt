@@ -1,0 +1,22 @@
+notes
+get photos from meetup API?  no?
+for 3+ people
+
+stage 1
+one phone passed around
+take photo and enter name
+previous person knows your name
+have option for people that have wandered off
+multiple choice
+have option to add new people
+must learn people's names
+get points for knowing people's names and also for people not knowing your name
+
+stage 1b
+must spell peoples' names
+
+stage 2
+favorite color
+favorite city
+
+stage 3

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Game</title>
+</head>
+<body>
+    <style>
+        .page > * {
+            margin-bottom: 15px;
+        }
+        .photo-clue {
+            max-width: 300px;
+        }
+    </style>
+<div class="page enter-name">
+    <div class="players"></div>
+    <div><label>Enter first name:</label></div>
+    <input type="text" name="name" />
+    <div><input type="file" accept="image/png, image/jpeg" class="photo" /></div>
+    <div><button class="add-player">Add another player</button></div>
+    <div><button class="start-game">Start/Continue Game</button></div>
+    <button class="reset-game">Reset Game</button>
+</div>
+<div class="page game" style="display: none">
+    <div class="turn"></div>
+    <img class="photo-clue" src="" />
+    <div class="answer"></div>
+    <div><button class="next">Next</button></div>
+    <button class="go-back">Back to setup</button>
+</div>
+<script>
+    let state = {
+        turn: 0,
+        players: []
+    };
+    let commonNames = {
+        male: ['Steve', 'Mike', 'James'],
+        female: ['Jennifer', 'Miley', 'Kristen'],
+    };
+    let pages = document.querySelectorAll('.page');
+    let playersList = document.querySelector('.players');
+    document.querySelector('.add-player').addEventListener('click', function (e) {
+        addPlayer();
+    });
+    document.querySelector('.start-game').addEventListener('click', function (e) {
+        addPlayer();
+        if (state.players.length < 3) {
+            return alert('add more players (3+)');
+        }
+        setupGame();
+        for (var i = 0; i < pages.length; i += 1) {
+            pages[i].style.display = 'none';
+        }
+        document.querySelector('.page.game').style.display = 'block';
+    });
+    document.querySelector('.go-back').addEventListener('click', function () {
+        for (var i = 0; i < pages.length; i += 1) {
+            pages[i].style.display = 'none';
+        }
+        document.querySelector('.page.enter-name').style.display = 'block';
+    });
+    document.querySelector('.next').addEventListener('click', function () {
+        // add points
+        state.turn += 1;
+        if (state.turn > state.players.length - 1) {
+            state.turn = 0;
+        }
+        setupGame();
+    });
+    document.querySelector('.photo').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            state.lastFile = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function addPlayer() {
+        let el = document.querySelector('[name="name"]');
+        if (!el.value) return;
+        state.players.push({name: el.value, points: 0, guesses: 0, image: state.lastFile});
+        delete state.lastFile;
+        el.value = '';
+        el.focus();
+        playersList.innerHTML = '';
+        state.players.forEach(function (player) {
+            playersList.innerHTML += `<div><img src="${player.image}" style="max-width: 100px;" />${player.name}</div>`;
+        });
+    }
+
+    function setupGame() {
+        // find player with lowest guesses, exclude yourself and last person
+        document.querySelector('.turn').innerHTML = `${state.players[state.turn].name}, it's your turn!<br>Who is this?`;
+        let guesses = -1;
+        let guessI = -1;
+        let others = [];
+        state.players.forEach(function (player, i) {
+            if (i !== state.turn) {
+                if ((i > 0 && i !== state.turn - 1) || (i === 0 && i !== state.players.length - 1)) {
+                    if (guesses === -1 || state.players[i].guesses < guesses) {
+                        guesses = state.players[i].guesses;
+                        guessI = i;
+                    } else if (others.length < 4) {
+                        others.push(state.players[i]);
+                    }
+                }
+            }
+        });
+        state.players[guessI].guesses += 1;
+        document.querySelector('.photo-clue').src = state.players[guessI].image;
+        document.querySelector('.answer').innerHTML = `<button class="correct">${state.players[guessI].name}</button>`;
+        let i = 0;
+        while (others.length < 4) {
+            others.push({name: commonNames.male[i]});
+            i += 1;
+        }
+        for (i = 0; i < others.length; i += 1) {
+            document.querySelector('.answer').innerHTML += `<button>${others[i].name}</button>`;
+        }
+    }
+</script>
+</body>
+</html>
