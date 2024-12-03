@@ -28,6 +28,8 @@
     <div><label>Enter first name:</label></div>
     <input type="text" name="name" />
     <div><input type="file" accept="image/png, image/jpeg" class="photo" /></div>
+    <div><input type="file" accept="image/*;capture=camera"></div>
+    <div><video autoplay="true" controls class="video"></video></div>
     <div><button class="add-player">Add another player</button></div>
     <div><button class="start-game">Start/Continue Game</button></div>
     <button class="reset-game">Reset Game</button>
@@ -40,6 +42,23 @@
     <button class="go-back">Back to setup</button>
 </div>
 <script>
+    var video = document.querySelector('.video');
+    (async function () {
+        try {
+            let stream = await navigator.mediaDevices.getUserMedia({video: {deviceId: undefined}});
+            // let tracks = stream.getTracks();
+            // tracks.forEach(function (track) {
+            //     if (track.label.match(/front/i)) {
+            //         // video.srcObject = track;
+            //     }
+            // });
+            // console.log(video.srcObject);
+            // console.log(tracks);
+            video.srcObject = stream;
+        } catch (err) {
+            console.log(err);
+        }
+    }());
     let state = {
         turn: 0,
         players: []
