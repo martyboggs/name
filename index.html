@@ -29,27 +29,39 @@
         canvas {
           min-height: 240px;
         }
+        button {
+          background: white;
+          border: 1px solid #aaa;
+          padding: 5px 20px;
+          cursor: pointer;
+        }
+        .blue-btn {
+          background: #2f65c4;
+          color: white;
+        }
+        .red-btn {
+          background: #aa0000;
+          color: white;
+        }
     </style>
 <div class="page enter-name">
     <div class="players"></div>
     <div><label>Enter first name:</label></div>
     <input type="text" name="name" />
-    <div>
-        <div class="camera">
-            <video id="video">Video stream not available.</video>
-            <canvas id="canvas"></canvas>
-            <div><button id="start-button">Take Photo</button></div>
-        </div>
+    <div class="camera">
+        <video id="video">Video stream not available.</video>
+        <canvas id="canvas"></canvas>
     </div>
+    <div><button id="start-button">Take Photo</button></div>
     <div><button class="add-player">Add Player</button></div>
-    <div><button class="start-game">Start/Continue Game</button></div>
-    <button class="reset-game">Reset Game</button>
+    <div><button class="start-game blue-btn">Start Game</button></div>
+    <button class="reset-game red-btn">Reset Game</button>
 </div>
 <div class="page game" style="display: none">
     <div class="turn"></div>
     <img class="photo-clue" src="" />
     <div class="answer"></div>
-    <div><button class="next">Next</button></div>
+    <div><button class="next">Not Sure</button></div>
     <button class="go-back">Back to setup</button>
 </div>
 <script>
@@ -67,10 +79,10 @@
         addPlayer();
     });
     document.querySelector('.start-game').addEventListener('click', function (e) {
-        // addPlayer();
         if (state.players.length < 3) {
             return alert('add more players (3+)');
         }
+        e.target.innerHTML = 'Continue Game';
         setupGame();
         for (var i = 0; i < pages.length; i += 1) {
             pages[i].style.display = 'none';
@@ -83,13 +95,27 @@
         }
         document.querySelector('.page.enter-name').style.display = 'block';
     });
-    document.querySelector('.next').addEventListener('click', function () {
-        // add points
+    document.querySelector('.answer').addEventListener('click', function (e) {
+      if (e.target.tagName === 'BUTTON') {
+        if (e.target.className === 'correct') {
+          state.players[state.turn].points += 1;
+        } else {
+          state.players[state.guessI].points += 1;
+        }
         state.turn += 1;
         if (state.turn > state.players.length - 1) {
             state.turn = 0;
         }
         setupGame();
+      }
+    });
+    document.querySelector('.next').addEventListener('click', function () {
+      players[state.guessI].points += 1;
+      state.turn += 1;
+      if (state.turn > state.players.length - 1) {
+          state.turn = 0;
+      }
+      setupGame();
     });
     // document.querySelector('.photo').addEventListener('change', function (event) {
     //     const file = event.target.files[0];
@@ -120,23 +146,23 @@
         // find player with lowest guesses, exclude yourself and last person
         document.querySelector('.turn').innerHTML = `${state.players[state.turn].name}, it's your turn!<br>Who is this?`;
         let guesses = -1;
-        let guessI = -1;
+        state.guessI = -1;
         let others = [];
         state.players.forEach(function (player, i) {
             if (i !== state.turn) {
                 if ((i > 0 && i !== state.turn - 1) || (i === 0 && i !== state.players.length - 1)) {
                     if (guesses === -1 || state.players[i].guesses < guesses) {
                         guesses = state.players[i].guesses;
-                        guessI = i;
+                        state.guessI = i;
                     } else if (others.length < 4) {
                         others.push(state.players[i]);
                     }
                 }
             }
         });
-        state.players[guessI].guesses += 1;
-        document.querySelector('.photo-clue').src = state.players[guessI].image;
-        document.querySelector('.answer').innerHTML = `<button class="correct">${state.players[guessI].name}</button>`;
+        state.players[state.guessI].guesses += 1;
+        document.querySelector('.photo-clue').src = state.players[state.guessI].image;
+        document.querySelector('.answer').innerHTML = `<button class="correct">${state.players[state.guessI].name}</button>`;
         let i = 0;
         while (others.length < 4) {
             others.push({name: commonNames.male[i]});
@@ -147,7 +173,7 @@
         }
     }
 
-    // The width and height of the captured photo. We will set the
+  // The width and height of the captured photo. We will set the
   // width to the value defined here, but the height will be
   // calculated based on the aspect ratio of the input stream.
 
