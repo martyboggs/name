@@ -22,6 +22,13 @@
         .photo-clue {
             max-width: 100%;
         }
+        video {
+          transform: rotateY(180deg);
+          min-height: 240px;
+        }
+        canvas {
+          min-height: 240px;
+        }
     </style>
 <div class="page enter-name">
     <div class="players"></div>
@@ -30,11 +37,11 @@
     <div>
         <div class="camera">
             <video id="video">Video stream not available.</video>
-            <button id="start-button">Take photo</button>
+            <canvas id="canvas"></canvas>
+            <div><button id="start-button">Take Photo</button></div>
         </div>
-        <canvas id="canvas"> </canvas>
     </div>
-    <div><button class="add-player">Add another player</button></div>
+    <div><button class="add-player">Add Player</button></div>
     <div><button class="start-game">Start/Continue Game</button></div>
     <button class="reset-game">Reset Game</button>
 </div>
@@ -60,7 +67,7 @@
         addPlayer();
     });
     document.querySelector('.start-game').addEventListener('click', function (e) {
-        addPlayer();
+        // addPlayer();
         if (state.players.length < 3) {
             return alert('add more players (3+)');
         }
@@ -101,6 +108,9 @@
         el.value = '';
         el.focus();
         playersList.innerHTML = '';
+        if (state.players.length) {
+          playersList.innerHTML += '<div><label>Players:</label></div>';
+        }
         state.players.forEach(function (player) {
             playersList.innerHTML += `<div><img src="${player.image}" style="max-width: 100px;" />${player.name}</div>`;
         });
@@ -244,9 +254,11 @@
     if (width && height) {
       canvas.width = width;
       canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
+      context.scale(-1, 1);
+      context.drawImage(video, 0, 0, -width, height);
       const data = canvas.toDataURL("image/png");
       state.lastFile = data;
+
     } else {
       clearPhoto();
     }
