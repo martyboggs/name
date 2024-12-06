@@ -32,16 +32,26 @@
         button {
           background: white;
           border: 1px solid #aaa;
-          padding: 5px 20px;
+          padding: 30px 30px;
           cursor: pointer;
         }
         .blue-btn {
           background: #2f65c4;
           color: white;
         }
+        .camera {
+          display: flex;
+        }
         .red-btn {
           background: #aa0000;
           color: white;
+        }
+        .answer {
+          display: flex;
+          flex-wrap: wrap;
+        }
+        .answer button {
+          min-width: 125px;
         }
     </style>
 <div class="page enter-name">
@@ -110,7 +120,7 @@
       }
     });
     document.querySelector('.next').addEventListener('click', function () {
-      players[state.guessI].points += 1;
+      state.players[state.guessI].points += 1;
       state.turn += 1;
       if (state.turn > state.players.length - 1) {
           state.turn = 0;
@@ -171,6 +181,12 @@
         for (i = 0; i < others.length; i += 1) {
             document.querySelector('.answer').innerHTML += `<button>${others[i].name}</button>`;
         }
+        var buttons = document.querySelectorAll('.answer button');
+        buttons = Array.from(buttons);
+        shuffle(buttons);
+        buttons.forEach(function (button, i) {
+          button.style.order = i;
+        });
     }
 
   // The width and height of the captured photo. We will set the
@@ -293,6 +309,22 @@
   // Set up our event listener to run the startup process
   // once loading is complete.
   window.addEventListener("load", startup, false);
+
+function shuffle(array) {
+  let currentIndex = array.length;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+
+    // Pick a remaining element...
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+}
 </script>
 </body>
 </html>
