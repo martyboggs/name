@@ -73,6 +73,7 @@
     <div class="answer"></div>
     <div><button class="next">Not Sure</button></div>
     <button class="go-back">Back to setup</button>
+    <div class="results"></div>
 </div>
 <script>
     let state = {
@@ -172,6 +173,7 @@
         });
         state.players[state.guessI].guesses += 1;
         document.querySelector('.photo-clue').src = state.players[state.guessI].image;
+        // answers
         document.querySelector('.answer').innerHTML = `<button class="correct">${state.players[state.guessI].name}</button>`;
         let i = 0;
         while (others.length < 4) {
@@ -187,6 +189,12 @@
         buttons.forEach(function (button, i) {
           button.style.order = i;
         });
+        // results
+        var results = JSON.parse(JSON.stringify(state.players));
+        results.forEach(function (result) {
+          delete result.image;
+        });
+        document.querySelector('.results').innerHTML = JSON.stringify(results);
     }
 
   // The width and height of the captured photo. We will set the
