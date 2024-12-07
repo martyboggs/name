@@ -6,54 +6,54 @@
     <title>Name Game</title>
 </head>
 <body>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-size: 24px;
-        }
-        input, button {
-            font-size: 20px;
-        }
-        .page > * {
-            margin-bottom: 15px;
-        }
-        .photo-clue {
-            max-width: 100%;
-        }
-        video {
-          transform: rotateY(180deg);
-          min-height: 240px;
-        }
-        canvas {
-          min-height: 240px;
-        }
-        button {
-          background: white;
-          border: 1px solid #aaa;
-          padding: 30px 30px;
-          cursor: pointer;
-        }
-        .blue-btn {
-          background: #2f65c4;
-          color: white;
-        }
-        .camera {
-          display: flex;
-        }
-        .red-btn {
-          background: #aa0000;
-          color: white;
-        }
-        .answer {
-          display: flex;
-          flex-wrap: wrap;
-        }
-        .answer button {
-          min-width: 125px;
-        }
-    </style>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    body {
+        font-size: 24px;
+    }
+    input, button {
+        font-size: 20px;
+    }
+    .page > * {
+        margin-bottom: 15px;
+    }
+    .photo-clue {
+        max-width: 100%;
+    }
+    video {
+        transform: rotateY(180deg);
+        min-height: 240px;
+    }
+    canvas {
+        min-height: 240px;
+    }
+    button {
+        background: white;
+        border: 1px solid #aaa;
+        padding: 30px 30px;
+        cursor: pointer;
+    }
+    .blue-btn {
+        background: #2f65c4;
+        color: white;
+    }
+    .camera {
+        display: flex;
+    }
+    .red-btn {
+        background: #aa0000;
+        color: white;
+    }
+    .answer {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .answer button {
+        min-width: 125px;
+    }
+</style>
 <div class="page enter-name">
     <div class="players"></div>
     <div><label>Enter first name:</label></div>
@@ -72,7 +72,7 @@
     <img class="photo-clue" src="" />
     <div class="answer"></div>
     <div><button class="next">Not Sure</button></div>
-    <button class="go-back">Back to setup</button>
+    <button class="go-back">Back To Setup</button>
     <div class="results"></div>
 </div>
 <script>
@@ -80,12 +80,29 @@
         turn: 0,
         players: []
     };
+    if (localStorage.game) {
+        try {
+            state = JSON.parse(localStorage.game);
+            document.querySelector('.start-game').innerHTML = 'Continue Game';
+        } catch (err) {
+            console.log(err);
+        }
+    }
     let commonNames = {
         male: ['Steve', 'Mike', 'James', 'Esteban', 'Lucas', 'Brian'],
         female: ['Jennifer', 'Miley', 'Kristen', 'Jade', 'Christina', 'Francesca'],
     };
     let pages = document.querySelectorAll('.page');
     let playersList = document.querySelector('.players');
+    addPlayer();
+    document.querySelector('.reset-game').addEventListener('click', function (e) {
+        localStorage.game = '';
+        state = {
+            turn: 0,
+            players: []
+        };
+        addPlayer();
+    });
     document.querySelector('.add-player').addEventListener('click', function (e) {
         addPlayer();
     });
@@ -109,9 +126,9 @@
     document.querySelector('.answer').addEventListener('click', function (e) {
       if (e.target.tagName === 'BUTTON') {
         if (e.target.className === 'correct') {
-          state.players[state.turn].points += 1;
+            state.players[state.turn].points += 1;
         } else {
-          state.players[state.guessI].points += 1;
+            state.players[state.guessI].points += 1;
         }
         state.turn += 1;
         if (state.turn > state.players.length - 1) {
@@ -121,12 +138,12 @@
       }
     });
     document.querySelector('.next').addEventListener('click', function () {
-      state.players[state.guessI].points += 1;
-      state.turn += 1;
-      if (state.turn > state.players.length - 1) {
-          state.turn = 0;
-      }
-      setupGame();
+        state.players[state.guessI].points += 1;
+        state.turn += 1;
+        if (state.turn > state.players.length - 1) {
+            state.turn = 0;
+        }
+        setupGame();
     });
     // document.querySelector('.photo').addEventListener('change', function (event) {
     //     const file = event.target.files[0];
@@ -139,17 +156,21 @@
 
     function addPlayer() {
         let el = document.querySelector('[name="name"]');
-        if (!el.value) return;
-        state.players.push({name: el.value, points: 0, guesses: 0, image: state.lastFile});
-        delete state.lastFile;
-        el.value = '';
-        el.focus();
+        if (el.value) {
+            state.players.push({name: el.value, points: 0, guesses: 0, image: state.lastFile});
+            delete state.lastFile;
+            el.value = '';
+            el.focus();
+            // save
+            localStorage.game = JSON.stringify(state);
+        }
+        // display players
         playersList.innerHTML = '';
         if (state.players.length) {
-          playersList.innerHTML += '<div><label>Players:</label></div>';
+            playersList.innerHTML += '<div><label>Players:</label></div>';
         }
         state.players.forEach(function (player) {
-            playersList.innerHTML += `<div><img src="${player.image}" style="max-width: 100px;" />${player.name}</div>`;
+            playersList.innerHTML += `<div><img src="${player.image}" style="max-width: 100px;" /></div>`;
         });
     }
 
@@ -187,14 +208,16 @@
         buttons = Array.from(buttons);
         shuffle(buttons);
         buttons.forEach(function (button, i) {
-          button.style.order = i;
+            button.style.order = i;
         });
         // results
         var results = JSON.parse(JSON.stringify(state.players));
         results.forEach(function (result) {
-          delete result.image;
+            delete result.image;
         });
         document.querySelector('.results').innerHTML = JSON.stringify(results);
+        // save
+        localStorage.game = JSON.stringify(state);
     }
 
   // The width and height of the captured photo. We will set the
